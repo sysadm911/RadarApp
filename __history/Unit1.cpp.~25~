@@ -59,7 +59,8 @@ void __fastcall TForm1::FormCreate(TObject *Sender) {
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 
-	Radar.WaveLength = 100;
+
+    Radar.WaveLength = 100;
 	Radar.I_F = 4794680;
 	Radar.ADCClock = 19178720;
 	Radar.PulseLength = 1668;
@@ -84,13 +85,16 @@ void __fastcall TForm1::FormCreate(TObject *Sender) {
 	Radar.PackRec[3].EnumKpp = 0;
 	currentTarget.Name = "Mig-29";
 	currentTarget.S = 10;
-//	currentTarget.Velocity = StrToFloat(edt_speed->Text);
+	currentTarget.Velocity = StrToFloat(edt_speed->Text);
 	currentTarget.Distance = 50000;
 	currentTarget.Beta = 90;
 	currentTarget.Length = 10;
 	currentTarget.Height = 1000;
+	ResultShiftScene.X = 0;
+	ResultShiftScene.Y = 0;
 
 	ListTr = new TList;
+
 
 }
 

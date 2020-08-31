@@ -206,7 +206,9 @@ void __fastcall TForm1::Panel1MouseMove(TObject *Sender, TShiftState Shift, int 
 // ---------------------------------------------------------------------------
 void __fastcall TForm1::Panel1Click(TObject *Sender) {
 	allowPaintPoint = true;
-	InvalidateRect(hwnd, 0, true);
+	ValueListEditor1->Values["D_start"]=D;
+
+	InvalidateRect(Handle, 0, true);
 }
 // ---------------------------------------------------------------------------
 

@@ -59,39 +59,6 @@ void __fastcall TForm1::FormCreate(TObject *Sender) {
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 
-	Radar.WaveLength = 100;
-	Radar.I_F = 4794680;
-	Radar.ADCClock = 19178720;
-	Radar.PulseLength = 1668;
-	Radar.wDN = 2;
-	Radar.ADCWidth = 8;
-	Radar.Noise = -60;
-	Radar.PackRec[0].Period = 890987;
-	Radar.PackRec[0].CntIZ = 16;
-	Radar.PackRec[0].CntDskr = 509;
-	Radar.PackRec[0].EnumKpp = 3;
-	Radar.PackRec[1].Period = 954391;
-	Radar.PackRec[1].CntIZ = 15;
-	Radar.PackRec[1].CntDskr = 547;
-	Radar.PackRec[1].EnumKpp = 2;
-	Radar.PackRec[2].Period = 1027805;
-	Radar.PackRec[2].CntIZ = 14;
-	Radar.PackRec[2].CntDskr = 591;
-	Radar.PackRec[2].EnumKpp = 1;
-	Radar.PackRec[3].Period = 1214679;
-	Radar.PackRec[3].CntIZ = 13;
-	Radar.PackRec[3].CntDskr = 703;
-	Radar.PackRec[3].EnumKpp = 0;
-	currentTarget.Name = "Mig-29";
-	currentTarget.S = 10;
-//	currentTarget.Velocity = StrToFloat(edt_speed->Text);
-	currentTarget.Distance = 50000;
-	currentTarget.Beta = 90;
-	currentTarget.Length = 10;
-	currentTarget.Height = 1000;
-
-	ListTr = new TList;
-
 }
 
 // ---------------------------------------------------------------------------
@@ -239,8 +206,8 @@ void __fastcall TForm1::Panel1MouseMove(TObject *Sender, TShiftState Shift, int 
 // ---------------------------------------------------------------------------
 void __fastcall TForm1::Panel1Click(TObject *Sender) {
 	allowPaintPoint = true;
-	ValueListEditor3->Cells[1][1] = D;
-	ValueListEditor3->Cells[2][2] = Az;
+	ValueListEditor3->Cells[1][1]=D;
+		ValueListEditor3->Cells[2][2]=Az;
 
 	InvalidateRect(Handle, 0, true);
 }
@@ -286,77 +253,8 @@ TTreeNode * TForm1::AddNodePulses(TTreeNode * Parent, int i) {
 	result->SelectedIndex = 0;
 	return result;
 }
-
 // ---------------------------------------------------------------------------
-
-float TForm1::GetTimePacket() {
-	float result = 0.0;
-	int stop = GetCountPackages();
-	for (int i = 0; i < stop; i++) {
-		result = result + (Radar.PackRec[i].CntIZ) * (Radar.PackRec[i].Period) * 1E-9;
-	}
-	return result;
-}
-
-int TForm1::GetCountPackages() {
-	int result = 0;
-	result = 4; // Radar.PackRec.Length;
-	return result;
-}
-
-float TForm1::GetTimePackage(int PackageID) {
-	float result = 0.0;
-	int i = 0;
-	result = Radar.PackRec[PackageID].Period * Radar.PackRec[PackageID].CntIZ * 1E-9;
-	return result;
-}
-
-int TForm1::GetCountPulsesOfPacket() {
-	int result = 0;
-	int i = 0;
-	result = 0;
-	int stop = GetCountPackages();
-	for (int i = 0; i < stop; i++) {
-		result = result + Radar.PackRec[i].CntIZ;
-	}
-	return result;
-}
-
-int TForm1::GetCountRotation() {
-	int result = 0;
-	result = 1 * 6;
-	return result;
-}
-
-int TForm1::GetCountPacketOfRotaion() {
-	int result = 0;
-	result = int(60.0 / GetCountRotation() / GetTimePacket());
-	return result;
-}
-
-float TForm1::GetAzimutOfTime(float Time) {
-	float result = 0.0;
-	result = Time * 6.0 / 60.0 * 360.0;
-
-	return result;
-}
-
-float TForm1::PulseToTime(int PacketID, int PackageID, int PulseId) {
-	float result = 0.0;
-	int i = 0, Cnt = 0;
-	result = PacketID;
-	i = PackageID; // - 1;
-	while (i > 0) {
-		result = result + GetTimePackage(i);
-		i--;
-	}
-	result = result + PulseId * Radar.PackRec[PackageID].Period * 1E-9;
-	return result;
-}
-
-// ---------------------------------------------------------------------------
-
-void __fastcall TForm1::Button1Click(TObject *Sender) {
+void __fastcall TForm1::BtnAddTVClick(TObject * Sender) {
 	double deltaTime = 0, deltaBeta = 0, deltaDistance = 0, D_start = 0, D_startX = 0, D_startY = 0, D_end = 0, D_endX = 0, D_endY = 0,
 		Decart_Route_Start = 0, Decart_Route_End = 0, Decart_Route = 0;
 
@@ -364,6 +262,7 @@ void __fastcall TForm1::Button1Click(TObject *Sender) {
 
 		int i, j, ii, irot;
 
+		TVready = false;
 		TTreeNode * Root, *NodeRot, *NodePacket, *NodePackage, *NodePulses, *PulsesData, *tmp, *tmp2;
 
 		TV->Items->Clear();
@@ -376,7 +275,7 @@ void __fastcall TForm1::Button1Click(TObject *Sender) {
 		BetaArr = new float[PulsesOfPacket];
 		int step = 0, currentPulse = 0;
 
-		// currentTarget.Velocity = StrToFloat(edt_speed->Text) * 1000.0 / 3600.0;
+		currentTarget.Velocity = StrToFloat(edt_speed->Text) * 1000.0 / 3600.0;
 		currentTarget.Distance = StrToFloat(edt_D0->Text) * 1000;
 		currentTarget.Beta = StrToFloat(edt_beta0->Text);
 
@@ -397,6 +296,10 @@ void __fastcall TForm1::Button1Click(TObject *Sender) {
 
 		Decart_Route = sqrt((D_startX + D_endX) * (D_startX + D_endX) + (D_startY + D_endY) * (D_startY + D_endY));
 		Decart_Route_End = Decart_Route;
+
+		FILE *F;
+		if ((F = fopen("C:\\Users\\user\\Desktop\\RadarGL.txt", "w+")) == NULL)
+			ShowMessage("Cannot open input file.\n");
 
 		if (D_start < D_end) {
 
@@ -449,11 +352,15 @@ void __fastcall TForm1::Button1Click(TObject *Sender) {
 							currentPulse++;
 
 							D_start += tmpItem->deltaDistance;
+							fprintf(F, "Beta = %17.15f  PackID =%3d   PckgID =%3d   ZapID =%3d   X =%17.15f Y =%17.15f D_start = %17.15f\n",
+								tmpItem->Beta, tmpItem->PackID, tmpItem->PckgID, tmpItem->ZapID, tmpItem->X, tmpItem->Y, D_start);
+
 						}
 
 					}
 				}
 			}
+			TVready = true;
 			// UpdateListPulses();
 			ShowMessage("IZ count = " + FloatToStr(currentPulse));
 
@@ -515,20 +422,29 @@ void __fastcall TForm1::Button1Click(TObject *Sender) {
 							currentPulse++;
 
 							D_start -= tmpItem->deltaDistance;
+							fprintf(F, "Beta = %17.15f  PackID =%3d   PckgID =%3d   ZapID =%3d   X =%17.15f Y =%17.15f D_start = %17.15f\n",
+								tmpItem->Beta, tmpItem->PackID, tmpItem->PckgID, tmpItem->ZapID, tmpItem->X, tmpItem->Y, D_start);
+
 						}
 
 					}
 				}
 			}
+			TVready = true;
 			// UpdateListPulses();
 			ShowMessage("IZ count = " + FloatToStr(currentPulse));
 
 		}
 		TV->Items->EndUpdate();
+		fclose(F);
+
 	}
 	Cursor = crDefault;
 
 	delete[]TimeArr;
 	delete[]BetaArr;
+
 }
+
 // ---------------------------------------------------------------------------
+

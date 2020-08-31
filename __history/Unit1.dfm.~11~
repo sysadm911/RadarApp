@@ -83,8 +83,11 @@ object Form1: TForm1
     Panels = <>
     ParentDoubleBuffered = False
     SimplePanel = True
+    ExplicitLeft = 608
+    ExplicitTop = 376
+    ExplicitWidth = 0
   end
-  object TV: TTreeView
+  object TreeView1: TTreeView
     Left = 738
     Top = 407
     Width = 239
@@ -105,51 +108,10 @@ object Form1: TForm1
       '')
     TabOrder = 5
     TitleCaptions.Strings = (
-      #1050#1086#1086#1088#1076#1080#1085#1072#1090#1099' '#1094#1077#1083#1080
+      #1055#1072#1088#1072#1084#1077#1090#1088#1099' '#1094#1077#1083#1080
       #1047#1085#1072#1095#1077#1085#1080#1077)
     ColWidths = (
       99
       100)
-  end
-  object Button1: TButton
-    Left = 738
-    Top = 672
-    Width = 75
-    Height = 25
-    Caption = 'Button1'
-    TabOrder = 6
-    OnClick = Button1Click
-  end
-  object edt_D0: TEdit
-    Left = 992
-    Top = 424
-    Width = 121
-    Height = 21
-    TabOrder = 7
-    Text = 'edt_D0'
-  end
-  object edt_beta0: TEdit
-    Left = 992
-    Top = 472
-    Width = 121
-    Height = 21
-    TabOrder = 8
-    Text = 'Edit1'
-  end
-  object edt_D3: TEdit
-    Left = 992
-    Top = 512
-    Width = 121
-    Height = 21
-    TabOrder = 9
-    Text = 'Edit1'
-  end
-  object edt_beta3: TEdit
-    Left = 992
-    Top = 552
-    Width = 121
-    Height = 21
-    TabOrder = 10
-    Text = 'Edit1'
   end
 end

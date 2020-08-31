@@ -1,11 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <BorlandProject>
-  <Transactions>
-    <Transaction>2020.08.31 08:57:58.151,=C:\Users\user\Documents\RAD Studio\Projects\Project1.res</Transaction>
-    <Transaction>2020.08.31 08:57:58.159,=C:\Users\user\Documents\RAD Studio\Projects\Unit1.cpp</Transaction>
-    <Transaction>2020.08.31 08:59:00.741,C:\Users\user\Desktop\RadarApp\Unit1.h=C:\Users\user\Documents\RAD Studio\Projects\Unit1.h</Transaction>
-    <Transaction>2020.08.31 08:59:00.741,C:\Users\user\Desktop\RadarApp\Unit1.dfm=C:\Users\user\Documents\RAD Studio\Projects\Unit1.dfm</Transaction>
-    <Transaction>2020.08.31 08:59:00.741,C:\Users\user\Desktop\RadarApp\Unit1.cpp=C:\Users\user\Documents\RAD Studio\Projects\Unit1.cpp</Transaction>
-    <Transaction>2020.08.31 08:59:10.393,C:\Users\user\Desktop\RadarApp\RadarApp.cbproj=C:\Users\user\Documents\RAD Studio\Projects\Project1.cbproj</Transaction>
+	<Transactions>
+    <Transaction>1899.12.30 00:00:00.000.393,C:\Users\user\Documents\RAD Studio\Projects\Project1.cbproj=C:\Users\user\Desktop\RadarApp\RadarApp.cbproj</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.741,C:\Users\user\Documents\RAD Studio\Projects\Unit1.h=C:\Users\user\Desktop\RadarApp\Unit1.h</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.151,=C:\Users\user\Documents\RAD Studio\Projects\Project1.res</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.159,=C:\Users\user\Documents\RAD Studio\Projects\Unit1.cpp</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.741,C:\Users\user\Documents\RAD Studio\Projects\Unit1.cpp=C:\Users\user\Desktop\RadarApp\Unit1.cpp</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.741,C:\Users\user\Documents\RAD Studio\Projects\Unit1.dfm=C:\Users\user\Desktop\RadarApp\Unit1.dfm</Transaction>
   </Transactions>
 </BorlandProject>

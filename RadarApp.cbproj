@@ -69,7 +69,6 @@
 				<BuildOrder>0</BuildOrder>
 			</CppCompile>
 			<ResFiles Include="RadarApp.res">
-				<ModuleName>RadarApp.res</ModuleName>
 				<BuildOrder>1</BuildOrder>
 			</ResFiles>
 			<CppCompile Include="Unit1.cpp">

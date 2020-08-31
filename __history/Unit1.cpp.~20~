@@ -16,11 +16,13 @@ HGLRC hrc;
 GLint viewport[4];
 GLdouble modelMatrix[16], projMatrix[16];
 GLfloat MCGrid[4];
-GLfloat MCPoint[4];
-GLfloat MCTarget[4];
-GLfloat tX, tY, DX, DY, Zoom;
+GLdouble MCPoint[4];
+GLdouble MCTarget[4];
+GLdouble tX, tY, DX, DY, Zoom;
 
-float D, Az, objx, objy, objz = 0;
+GLdouble D, Az, objx, objy, objz = 0;
+
+bool allowPaintPoint = false;
 
 // ---------------------------------------------------------------------------
 __fastcall TForm1::TForm1(TComponent* Owner) : TForm(Owner) {
@@ -78,7 +80,8 @@ void __fastcall TForm1::WMPaint(TWMPaint Msg) {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	PaintGrid();
-
+	if (allowPaintPoint == true)
+		PaintPoint();
 	SwapBuffers(dc);
 	// wglMakeCurrent(0, 0);
 	// wglDeleteContext(hrc);
@@ -184,19 +187,70 @@ void __fastcall TForm1::Panel1MouseMove(TObject *Sender, TShiftState Shift, int 
 		Az = 360 + (180 / Pi * Az);
 
 	Caption = Format("%3.3f км,  %3.0f", ARRAYOFCONST((D, Az))) + " \xB0";
-	Caption = Format("OpenGL X_coord = %.6f,  Y_coord = %.6f,  Z_coord = %.6f", ARRAYOFCONST((objx, objy, objz)));
+	StatusBar1->SimpleText = Format("OpenGL X_coord = %.6f,  Y_coord = %.6f,  Z_coord = %.6f", ARRAYOFCONST((objx, objy, objz)));
 
-	float tmpX, tmpY;
+	// float tmpX, tmpY;
+	//
+	// if (Shift.Contains(ssRight)) {
+	//
+	// MousePosMove.X = MousePosMove.X + objx;
+	// MousePosMove.Y = MousePosMove.Y + objy;
+	// MousePosMove.State = siManualDrag;
+	// InvalidateRect(hwnd1, 0, false);
+	// }
+	//
+	// else
+	// MousePosMove.State = siNone;
+}
 
-	if (Shift.Contains(ssRight)) {
+// ---------------------------------------------------------------------------
+void __fastcall TForm1::Panel1Click(TObject *Sender) {
+	allowPaintPoint = true;
+	ValueListEditor3->Cells[1][1]=D;
+		ValueListEditor3->Cells[2][2]=Az;
 
-		MousePosMove.X = MousePosMove.X + objx;
-		MousePosMove.Y = MousePosMove.Y + objy;
-		MousePosMove.State = siManualDrag;
-		InvalidateRect(hwnd1, 0, false);
-	}
+	InvalidateRect(Handle, 0, true);
+}
+// ---------------------------------------------------------------------------
 
-	else
-		MousePosMove.State = siNone;
+// ---------------------------------------------------------------------------
+void TForm1::PaintPoint() {
+	glPointSize(10);
+	glEnable(GL_POINT_SMOOTH);
+	glBegin(GL_POINTS);
+	glVertex2f(objx, objy);
+	glEnd();
+}
+
+// ---------------------------------------------------------------------------
+TTreeNode * TForm1::AddNodeRot(int i) {
+	TTreeNode * result;
+	result = TV->Items->Add(NULL, " Оборот №" + IntToStr(i + 1));
+	result->SelectedIndex = 0;
+	return result;
+}
+
+// ---------------------------------------------------------------------------
+TTreeNode * TForm1::AddNodePacket(TTreeNode * Parent, int i) {
+	TTreeNode * result;
+	result = TV->Items->AddChild(Parent, " Пакет №" + IntToStr(i + 1));
+	result->SelectedIndex = 0;
+	return result;
+}
+
+// ---------------------------------------------------------------------------
+TTreeNode * TForm1::AddNodePackage(TTreeNode * Parent, int i) {
+	TTreeNode * result;
+	result = TV->Items->AddChild(Parent, " Пачка №" + IntToStr(i + 1));
+	result->SelectedIndex = 0;
+	return result;
+}
+
+// ---------------------------------------------------------------------------
+TTreeNode * TForm1::AddNodePulses(TTreeNode * Parent, int i) {
+	TTreeNode * result;
+	result = TV->Items->AddChild(Parent, " Запуск №" + IntToStr(i + 1));
+	result->SelectedIndex = 0;
+	return result;
 }
 // ---------------------------------------------------------------------------

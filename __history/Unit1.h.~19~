@@ -68,16 +68,11 @@ __published: // IDE-managed Components
 	TTreeView *TV;
 	TValueListEditor *ValueListEditor3;
 	TButton *Button1;
-	TEdit *edt_D0;
-	TEdit *edt_beta0;
-	TEdit *edt_D3;
-	TEdit *edt_beta3;
 
 	void __fastcall FormCreate(TObject *Sender);
 	void __fastcall FormDestroy(TObject *Sender);
 	void __fastcall Panel1MouseMove(TObject *Sender, TShiftState Shift, int X, int Y);
 	void __fastcall Panel1Click(TObject *Sender);
-	void __fastcall Button1Click(TObject *Sender);
 
 private: // User declarations
 	void __fastcall SetDCPixelFormat(HDC hdc);
@@ -86,31 +81,10 @@ private: // User declarations
 	END_MESSAGE_MAP(TForm);
 
 public: // User declarations
-
-	TRecRadar Radar;
-	Target currentTarget;
-	TtmpItemRec *tmpItem;
-	TList *ListTr;
-	int *TimeArr;
-	float *BetaArr;
-	int TimeOfPacket;
-	float BetaOfPacket;
-
-	int GetCountSamplesOfPulse();
-	int GetCountSamplesOfPulseLFM();
-	float PulseToTime(int PacketID, int PackageID, int PulseId);
-	int GetCountPulsesOfPacket();
-	int GetCountPacketOfRotaion();
-	int GetCountRotation();
-	float GetTimePackage(int PackageID);
-	int GetCountPackages();
-	float GetTimePacket();
-	float GetAzimutOfTime(float Time);
-
-	TTreeNode * AddNodeRot(int i);
 	TTreeNode * AddNodePacket(TTreeNode * Parent, int i);
 	TTreeNode * AddNodePackage(TTreeNode * Parent, int i);
 	TTreeNode * AddNodePulses(TTreeNode * Parent, int i);
+	void __fastcall BtnAddTVClick(TObject * Sender);
 	void PaintGrid();
 	void PaintPoint();
 	__fastcall TForm1(TComponent* Owner);

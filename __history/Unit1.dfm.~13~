@@ -118,38 +118,5 @@ object Form1: TForm1
     Height = 25
     Caption = 'Button1'
     TabOrder = 6
-    OnClick = Button1Click
-  end
-  object edt_D0: TEdit
-    Left = 992
-    Top = 424
-    Width = 121
-    Height = 21
-    TabOrder = 7
-    Text = 'edt_D0'
-  end
-  object edt_beta0: TEdit
-    Left = 992
-    Top = 472
-    Width = 121
-    Height = 21
-    TabOrder = 8
-    Text = 'Edit1'
-  end
-  object edt_D3: TEdit
-    Left = 992
-    Top = 512
-    Width = 121
-    Height = 21
-    TabOrder = 9
-    Text = 'Edit1'
-  end
-  object edt_beta3: TEdit
-    Left = 992
-    Top = 552
-    Width = 121
-    Height = 21
-    TabOrder = 10
-    Text = 'Edit1'
   end
 end

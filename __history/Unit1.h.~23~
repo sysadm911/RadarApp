@@ -86,15 +86,14 @@ private: // User declarations
 	END_MESSAGE_MAP(TForm);
 
 public: // User declarations
-
 	TRecRadar Radar;
 	Target currentTarget;
 	TtmpItemRec *tmpItem;
-	TList *ListTr;
 	int *TimeArr;
 	float *BetaArr;
 	int TimeOfPacket;
 	float BetaOfPacket;
+
 
 	int GetCountSamplesOfPulse();
 	int GetCountSamplesOfPulseLFM();

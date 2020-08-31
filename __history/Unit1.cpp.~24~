@@ -59,39 +59,6 @@ void __fastcall TForm1::FormCreate(TObject *Sender) {
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 
-	Radar.WaveLength = 100;
-	Radar.I_F = 4794680;
-	Radar.ADCClock = 19178720;
-	Radar.PulseLength = 1668;
-	Radar.wDN = 2;
-	Radar.ADCWidth = 8;
-	Radar.Noise = -60;
-	Radar.PackRec[0].Period = 890987;
-	Radar.PackRec[0].CntIZ = 16;
-	Radar.PackRec[0].CntDskr = 509;
-	Radar.PackRec[0].EnumKpp = 3;
-	Radar.PackRec[1].Period = 954391;
-	Radar.PackRec[1].CntIZ = 15;
-	Radar.PackRec[1].CntDskr = 547;
-	Radar.PackRec[1].EnumKpp = 2;
-	Radar.PackRec[2].Period = 1027805;
-	Radar.PackRec[2].CntIZ = 14;
-	Radar.PackRec[2].CntDskr = 591;
-	Radar.PackRec[2].EnumKpp = 1;
-	Radar.PackRec[3].Period = 1214679;
-	Radar.PackRec[3].CntIZ = 13;
-	Radar.PackRec[3].CntDskr = 703;
-	Radar.PackRec[3].EnumKpp = 0;
-	currentTarget.Name = "Mig-29";
-	currentTarget.S = 10;
-//	currentTarget.Velocity = StrToFloat(edt_speed->Text);
-	currentTarget.Distance = 50000;
-	currentTarget.Beta = 90;
-	currentTarget.Length = 10;
-	currentTarget.Height = 1000;
-
-	ListTr = new TList;
-
 }
 
 // ---------------------------------------------------------------------------
@@ -338,19 +305,6 @@ float TForm1::GetAzimutOfTime(float Time) {
 	float result = 0.0;
 	result = Time * 6.0 / 60.0 * 360.0;
 
-	return result;
-}
-
-float TForm1::PulseToTime(int PacketID, int PackageID, int PulseId) {
-	float result = 0.0;
-	int i = 0, Cnt = 0;
-	result = PacketID;
-	i = PackageID; // - 1;
-	while (i > 0) {
-		result = result + GetTimePackage(i);
-		i--;
-	}
-	result = result + PulseId * Radar.PackRec[PackageID].Period * 1E-9;
 	return result;
 }
 

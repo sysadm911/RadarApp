@@ -22,6 +22,8 @@ GLdouble tX, tY, DX, DY, Zoom;
 
 GLdouble D, Az, objx, objy, objz = 0;
 
+bool allowPaintPoint = false;
+
 // ---------------------------------------------------------------------------
 __fastcall TForm1::TForm1(TComponent* Owner) : TForm(Owner) {
 }
@@ -78,7 +80,8 @@ void __fastcall TForm1::WMPaint(TWMPaint Msg) {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	PaintGrid();
-
+	if (allowPaintPoint == true)
+		PaintPoint();
 	SwapBuffers(dc);
 	// wglMakeCurrent(0, 0);
 	// wglDeleteContext(hrc);
@@ -202,16 +205,19 @@ void __fastcall TForm1::Panel1MouseMove(TObject *Sender, TShiftState Shift, int 
 
 // ---------------------------------------------------------------------------
 void __fastcall TForm1::Panel1Click(TObject *Sender) {
-	AddPoint();
+	allowPaintPoint = true;
+	ValueListEditor3->Cells[1][1]=D;
+		ValueListEditor3->Cells[2][1]=D;
+
+	InvalidateRect(Handle, 0, true);
 }
 // ---------------------------------------------------------------------------
 
 // ---------------------------------------------------------------------------
 void TForm1::PaintPoint() {
-	glPointSize(Zoom*2);
+	glPointSize(10);
 	glEnable(GL_POINT_SMOOTH);
 	glBegin(GL_POINTS);
-
-		glVertex2f(objx, objy);
+	glVertex2f(objx, objy);
 	glEnd();
 }

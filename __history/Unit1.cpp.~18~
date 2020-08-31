@@ -9,14 +9,20 @@
 #pragma resource "*.dfm"
 TForm1 *Form1;
 
+#define Pi M_PI
 HWND hwnd;
 HDC dc;
 HGLRC hrc;
+GLint viewport[4];
+GLdouble modelMatrix[16], projMatrix[16];
+GLfloat MCGrid[4];
+GLdouble MCPoint[4];
+GLdouble MCTarget[4];
+GLdouble tX, tY, DX, DY, Zoom;
 
-	GLfloat MCGrid[4];
-	GLfloat MCPoint[4];
-	GLfloat MCTarget[4];
-	GLfloat tX, tY, DX, DY;
+GLdouble D, Az, objx, objy, objz = 0;
+
+bool allowPaintPoint = false;
 
 // ---------------------------------------------------------------------------
 __fastcall TForm1::TForm1(TComponent* Owner) : TForm(Owner) {
@@ -45,6 +51,14 @@ void __fastcall TForm1::FormCreate(TObject *Sender) {
 	SetDCPixelFormat(dc);
 	hrc = wglCreateContext(dc);
 	wglMakeCurrent(dc, hrc);
+
+	glEnable(GL_DEPTH_TEST); // разрешаем тест глубины
+	glEnable(GL_LIGHTING); // разрешаем работу с освещенностью
+	glEnable(GL_LIGHT0); // включаем источник света 0
+
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+
 }
 
 // ---------------------------------------------------------------------------
@@ -61,11 +75,16 @@ void __fastcall TForm1::WMPaint(TWMPaint Msg) {
 
 	BeginPaint(hwnd, &ps);
 
+	unsigned int Cl = RGB(55, 53, 74);
+	glClearColor(double(LOBYTE(Cl)) / 255, double(HIBYTE(Cl)) / 255, double(LOBYTE(HIWORD(Cl))) / 255, 1);
 
-
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	PaintGrid();
+	if (allowPaintPoint == true)
+		PaintPoint();
 	SwapBuffers(dc);
-	wglMakeCurrent(0, 0);
-	wglDeleteContext(hrc);
+	// wglMakeCurrent(0, 0);
+	// wglDeleteContext(hrc);
 
 	EndPaint(hwnd, &ps);
 
@@ -73,9 +92,8 @@ void __fastcall TForm1::WMPaint(TWMPaint Msg) {
 
 // ---------------------------------------------------------------------------
 
-void TForm1::PaintGrid()
-{
-   	// grid_list = glGenLists(1);
+void TForm1::PaintGrid() {
+	// grid_list = glGenLists(1);
 	// glNewList(grid_list, GL_COMPILE);
 	const int nSec = 40;
 	int i = 0, j = 0;
@@ -151,5 +169,54 @@ void TForm1::PaintGrid()
 		glEnd();
 	}
 }
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 
+void __fastcall TForm1::Panel1MouseMove(TObject *Sender, TShiftState Shift, int X, int Y) {
+	glGetIntegerv(GL_VIEWPORT, viewport);
+	glGetDoublev(GL_PROJECTION_MATRIX, projMatrix);
+	glGetDoublev(GL_MODELVIEW_MATRIX, modelMatrix);
+	gluUnProject(X, (float)viewport[3] - Y, 0, modelMatrix, projMatrix, viewport, &objx, &objy, &objz);
+
+	D = sqrt(objy * objy + objx * objx) * 450;
+	// Az = ArcTan2(objy, objx);
+	Az = ArcTan2(objx, objy);
+
+	if (Az > 0)
+		Az = 180 / Pi * Az;
+	else
+		Az = 360 + (180 / Pi * Az);
+
+	Caption = Format("%3.3f км,  %3.0f", ARRAYOFCONST((D, Az))) + " \xB0";
+	StatusBar1->SimpleText = Format("OpenGL X_coord = %.6f,  Y_coord = %.6f,  Z_coord = %.6f", ARRAYOFCONST((objx, objy, objz)));
+
+	// float tmpX, tmpY;
+	//
+	// if (Shift.Contains(ssRight)) {
+	//
+	// MousePosMove.X = MousePosMove.X + objx;
+	// MousePosMove.Y = MousePosMove.Y + objy;
+	// MousePosMove.State = siManualDrag;
+	// InvalidateRect(hwnd1, 0, false);
+	// }
+	//
+	// else
+	// MousePosMove.State = siNone;
+}
+
+// ---------------------------------------------------------------------------
+void __fastcall TForm1::Panel1Click(TObject *Sender) {
+	allowPaintPoint = true;
+	ValueListEditor3->Cells[1][1]=D;
+
+	InvalidateRect(Handle, 0, true);
+}
+// ---------------------------------------------------------------------------
+
+// ---------------------------------------------------------------------------
+void TForm1::PaintPoint() {
+	glPointSize(10);
+	glEnable(GL_POINT_SMOOTH);
+	glBegin(GL_POINTS);
+	glVertex2f(objx, objy);
+	glEnd();
+}
