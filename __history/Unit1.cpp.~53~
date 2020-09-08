@@ -19,9 +19,10 @@ GLfloat MCGrid[4];
 GLdouble MCPoint[4];
 GLdouble MCTarget[4];
 GLdouble tX, tY, DX, DY, Zoom;
-
 GLdouble D, Az, objx, objy, objz = 0;
+GLdouble pPoints[2][2] = {0};
 
+	int click_counter;
 bool allowPaintPoint = false;
 
 // ---------------------------------------------------------------------------
@@ -59,8 +60,7 @@ void __fastcall TForm1::FormCreate(TObject *Sender) {
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 
-
-    Radar.WaveLength = 100;
+	Radar.WaveLength = 100;
 	Radar.I_F = 4794680;
 	Radar.ADCClock = 19178720;
 	Radar.PulseLength = 1668;
@@ -85,16 +85,13 @@ void __fastcall TForm1::FormCreate(TObject *Sender) {
 	Radar.PackRec[3].EnumKpp = 0;
 	currentTarget.Name = "Mig-29";
 	currentTarget.S = 10;
-	currentTarget.Velocity = StrToFloat(edt_speed->Text);
+	// currentTarget.Velocity = StrToFloat(edt_speed->Text);
 	currentTarget.Distance = 50000;
 	currentTarget.Beta = 90;
 	currentTarget.Length = 10;
 	currentTarget.Height = 1000;
-	ResultShiftScene.X = 0;
-	ResultShiftScene.Y = 0;
 
 	ListTr = new TList;
-
 
 }
 
@@ -117,8 +114,10 @@ void __fastcall TForm1::WMPaint(TWMPaint Msg) {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	PaintGrid();
+
 	if (allowPaintPoint == true)
 		PaintPoint();
+
 	SwapBuffers(dc);
 	// wglMakeCurrent(0, 0);
 	// wglDeleteContext(hrc);
@@ -128,7 +127,6 @@ void __fastcall TForm1::WMPaint(TWMPaint Msg) {
 }
 
 // ---------------------------------------------------------------------------
-
 void TForm1::PaintGrid() {
 	// grid_list = glGenLists(1);
 	// glNewList(grid_list, GL_COMPILE);
@@ -226,36 +224,43 @@ void __fastcall TForm1::Panel1MouseMove(TObject *Sender, TShiftState Shift, int 
 	Caption = Format("%3.3f κμ,  %3.0f", ARRAYOFCONST((D, Az))) + " \xB0";
 	StatusBar1->SimpleText = Format("OpenGL X_coord = %.6f,  Y_coord = %.6f,  Z_coord = %.6f", ARRAYOFCONST((objx, objy, objz)));
 
-	// float tmpX, tmpY;
-	//
-	// if (Shift.Contains(ssRight)) {
-	//
-	// MousePosMove.X = MousePosMove.X + objx;
-	// MousePosMove.Y = MousePosMove.Y + objy;
-	// MousePosMove.State = siManualDrag;
-	// InvalidateRect(hwnd1, 0, false);
-	// }
-	//
-	// else
-	// MousePosMove.State = siNone;
 }
 
 // ---------------------------------------------------------------------------
 void __fastcall TForm1::Panel1Click(TObject *Sender) {
-	allowPaintPoint = true;
-	ValueListEditor3->Cells[1][1] = D;
-	ValueListEditor3->Cells[2][2] = Az;
 
+	switch (click_counter) {
+	case 1:
+		allowPaintPoint = true;
+		ValueListEditor3->Cells[1][1] = D;
+		ValueListEditor3->Cells[2][2] = Az;
+		pPoints[0][0] = objx;
+		pPoints[0][1] = objy;
+		break;
+	case 2:
+		allowPaintPoint = true;
+		ValueListEditor3->Cells[1][3] = D;
+		ValueListEditor3->Cells[2][4] = Az;
+		pPoints[1][0] = objx;
+		pPoints[1][1] = objy;
+		break;
+	default:
+		allowPaintPoint = false;
+		click_counter = 0;
+	}
 	InvalidateRect(Handle, 0, true);
+	click_counter++;
+
 }
-// ---------------------------------------------------------------------------
 
 // ---------------------------------------------------------------------------
 void TForm1::PaintPoint() {
+
 	glPointSize(10);
 	glEnable(GL_POINT_SMOOTH);
 	glBegin(GL_POINTS);
-	glVertex2f(objx, objy);
+	for (int i = 0; i < click_counter; i++)
+		glVertex2f(pPoints[i][0], pPoints[i][1]);
 	glEnd();
 }
 
@@ -402,137 +407,138 @@ void __fastcall TForm1::Button1Click(TObject *Sender) {
 		Decart_Route = sqrt((D_startX + D_endX) * (D_startX + D_endX) + (D_startY + D_endY) * (D_startY + D_endY));
 		Decart_Route_End = Decart_Route;
 
-		if (D_start < D_end) {
-
-			irot = 0;
-			currentPulse = 0;
-			while (D_start < D_end) {
-
-				NodeRot = AddNodeRot(irot);
-				irot++;
-
-				for (i = 0; i < CntPack; i++) {
-
-					NodePacket = AddNodePacket(NodeRot, i);
-					for (j = 0; j < 4; j++) {
-
-						NodePackage = AddNodePackage(NodePacket, j);
-						for (ii = 0; ii < Radar.PackRec[j].CntIZ; ii++) {
-							NodePulses = AddNodePulses(NodePackage, ii);
-
-							tmpItem = new TtmpItemRec;
-							tmpItem->ZapID = ii;
-							tmpItem->PackID = i;
-							tmpItem->PckgID = j;
-							tmpItem->Time = PulseToTime(i, j, ii);
-							tmpItem->Beta = GetAzimutOfTime(tmpItem->Time) + currentTarget.Beta;
-							if (t1 < t2) {
-								if (!((tmpItem->Beta >= t1) && (tmpItem->Beta <= t2))) {
-									tmpItem->Beta = 0;
-
-								}
-							}
-
-							if (t1 > t2) {
-								if (!((tmpItem->Beta >= t2) && (tmpItem->Beta <= t1))) {
-									tmpItem->Beta = 0;
-
-								}
-							}
-							tmpItem->TimeBack = tmpItem->Time + 2.0 * D_start / 3.0e8;
-							tmpItem->deltaTime = tmpItem->TimeBack - tmpItem->Time;
-							tmpItem->deltaDistance = currentTarget.Velocity * (tmpItem->deltaTime);
-							tmpItem->X = (D_start / 450000.0) * cos(Pi * tmpItem->Beta / 180.0);
-							tmpItem->Y = (D_start / 450000.0) * sin(Pi * tmpItem->Beta / 180.0);
-
-							tmpItem->Parent = NULL;
-
-							NodePulses->Data = tmpItem;
-
-							step = step + Radar.PackRec[j].Period;
-							currentPulse++;
-
-							D_start += tmpItem->deltaDistance;
-						}
-
-					}
-				}
-			}
-			// UpdateListPulses();
-			ShowMessage("IZ count = " + FloatToStr(currentPulse));
-
-		}
-
-		D_start = StrToFloat(edt_D0->Text) * 1000.0;
-		D_end = StrToFloat(edt_D3->Text) * 1000.0;
-
-		if (D_start > D_end) {
-
-			irot = 0;
-			currentPulse = 0;
-			while (D_start > D_end) {
-
-				NodeRot = AddNodeRot(irot);
-				irot++;
-
-				for (i = 0; i < CntPack; i++) {
-
-					NodePacket = AddNodePacket(NodeRot, i);
-					for (j = 0; j < 4; j++) {
-
-						NodePackage = AddNodePackage(NodePacket, j);
-						for (ii = 0; ii < Radar.PackRec[j].CntIZ; ii++) {
-							NodePulses = AddNodePulses(NodePackage, ii);
-
-							tmpItem = new TtmpItemRec;
-							tmpItem->ZapID = ii;
-							tmpItem->PackID = i;
-							tmpItem->PckgID = j;
-							tmpItem->Time = PulseToTime(i, j, ii);
-							tmpItem->Beta = GetAzimutOfTime(tmpItem->Time) + currentTarget.Beta;
-							// while (tmpItem->Beta >= 360)
-							// tmpItem->Beta = tmpItem->Beta - 360.0;
-							if (t1 < t2) {
-								if (!((tmpItem->Beta >= t1) && (tmpItem->Beta <= t2))) {
-									tmpItem->Beta = 0;
-
-								}
-							}
-
-							if (t1 > t2) {
-								if (!((tmpItem->Beta >= t2) && (tmpItem->Beta <= t1))) {
-									tmpItem->Beta = 0;
-
-								}
-							}
-
-							tmpItem->TimeBack = tmpItem->Time + 2.0 * D_start / 3.0e8;
-							tmpItem->deltaTime = tmpItem->TimeBack - tmpItem->Time;
-							tmpItem->deltaDistance = currentTarget.Velocity * (tmpItem->deltaTime);
-							tmpItem->X = (D_start / 450000.0) * cos(Pi * tmpItem->Beta / 180.0);
-							tmpItem->Y = (D_start / 450000.0) * sin(Pi * tmpItem->Beta / 180.0);
-
-							tmpItem->Parent = NULL;
-
-							NodePulses->Data = tmpItem;
-
-							currentPulse++;
-
-							D_start -= tmpItem->deltaDistance;
-						}
-
-					}
-				}
-			}
-			// UpdateListPulses();
-			ShowMessage("IZ count = " + FloatToStr(currentPulse));
-
-		}
-		TV->Items->EndUpdate();
+		// if (D_start < D_end) {
+		//
+		// irot = 0;
+		// currentPulse = 0;
+		// while (D_start < D_end) {
+		//
+		// NodeRot = AddNodeRot(irot);
+		// irot++;
+		//
+		// for (i = 0; i < CntPack; i++) {
+		//
+		// NodePacket = AddNodePacket(NodeRot, i);
+		// for (j = 0; j < 4; j++) {
+		//
+		// NodePackage = AddNodePackage(NodePacket, j);
+		// for (ii = 0; ii < Radar.PackRec[j].CntIZ; ii++) {
+		// NodePulses = AddNodePulses(NodePackage, ii);
+		//
+		// tmpItem = new TtmpItemRec;
+		// tmpItem->ZapID = ii;
+		// tmpItem->PackID = i;
+		// tmpItem->PckgID = j;
+		// tmpItem->Time = PulseToTime(i, j, ii);
+		// tmpItem->Beta = GetAzimutOfTime(tmpItem->Time) + currentTarget.Beta;
+		// if (t1 < t2) {
+		// if (!((tmpItem->Beta >= t1) && (tmpItem->Beta <= t2))) {
+		// tmpItem->Beta = 0;
+		//
+		// }
+		// }
+		//
+		// if (t1 > t2) {
+		// if (!((tmpItem->Beta >= t2) && (tmpItem->Beta <= t1))) {
+		// tmpItem->Beta = 0;
+		//
+		// }
+		// }
+		// tmpItem->TimeBack = tmpItem->Time + 2.0 * D_start / 3.0e8;
+		// tmpItem->deltaTime = tmpItem->TimeBack - tmpItem->Time;
+		// tmpItem->deltaDistance = currentTarget.Velocity * (tmpItem->deltaTime);
+		// tmpItem->X = (D_start / 450000.0) * cos(Pi * tmpItem->Beta / 180.0);
+		// tmpItem->Y = (D_start / 450000.0) * sin(Pi * tmpItem->Beta / 180.0);
+		//
+		// tmpItem->Parent = NULL;
+		//
+		// NodePulses->Data = tmpItem;
+		//
+		// step = step + Radar.PackRec[j].Period;
+		// currentPulse++;
+		//
+		// D_start += tmpItem->deltaDistance;
+		// }
+		//
+		// }
+		// }
+		// }
+		// // UpdateListPulses();
+		// ShowMessage("IZ count = " + FloatToStr(currentPulse));
+		//
+		// }
+		//
+		// D_start = StrToFloat(edt_D0->Text) * 1000.0;
+		// D_end = StrToFloat(edt_D3->Text) * 1000.0;
+		//
+		// if (D_start > D_end) {
+		//
+		// irot = 0;
+		// currentPulse = 0;
+		// while (D_start > D_end) {
+		//
+		// NodeRot = AddNodeRot(irot);
+		// irot++;
+		//
+		// for (i = 0; i < CntPack; i++) {
+		//
+		// NodePacket = AddNodePacket(NodeRot, i);
+		// for (j = 0; j < 4; j++) {
+		//
+		// NodePackage = AddNodePackage(NodePacket, j);
+		// for (ii = 0; ii < Radar.PackRec[j].CntIZ; ii++) {
+		// NodePulses = AddNodePulses(NodePackage, ii);
+		//
+		// tmpItem = new TtmpItemRec;
+		// tmpItem->ZapID = ii;
+		// tmpItem->PackID = i;
+		// tmpItem->PckgID = j;
+		// tmpItem->Time = PulseToTime(i, j, ii);
+		// tmpItem->Beta = GetAzimutOfTime(tmpItem->Time) + currentTarget.Beta;
+		// // while (tmpItem->Beta >= 360)
+		// // tmpItem->Beta = tmpItem->Beta - 360.0;
+		// if (t1 < t2) {
+		// if (!((tmpItem->Beta >= t1) && (tmpItem->Beta <= t2))) {
+		// tmpItem->Beta = 0;
+		//
+		// }
+		// }
+		//
+		// if (t1 > t2) {
+		// if (!((tmpItem->Beta >= t2) && (tmpItem->Beta <= t1))) {
+		// tmpItem->Beta = 0;
+		//
+		// }
+		// }
+		//
+		// tmpItem->TimeBack = tmpItem->Time + 2.0 * D_start / 3.0e8;
+		// tmpItem->deltaTime = tmpItem->TimeBack - tmpItem->Time;
+		// tmpItem->deltaDistance = currentTarget.Velocity * (tmpItem->deltaTime);
+		// tmpItem->X = (D_start / 450000.0) * cos(Pi * tmpItem->Beta / 180.0);
+		// tmpItem->Y = (D_start / 450000.0) * sin(Pi * tmpItem->Beta / 180.0);
+		//
+		// tmpItem->Parent = NULL;
+		//
+		// NodePulses->Data = tmpItem;
+		//
+		// currentPulse++;
+		//
+		// D_start -= tmpItem->deltaDistance;
+		// }
+		//
+		// }
+		// }
+		// }
+		// // UpdateListPulses();
+		// ShowMessage("IZ count = " + FloatToStr(currentPulse));
+		//
+		// }
+		// TV->Items->EndUpdate();
+		// }
+		// Cursor = crDefault;
+		//
+		// delete[]TimeArr;
+		// delete[]BetaArr;
 	}
-	Cursor = crDefault;
-
-	delete[]TimeArr;
-	delete[]BetaArr;
 }
 // ---------------------------------------------------------------------------

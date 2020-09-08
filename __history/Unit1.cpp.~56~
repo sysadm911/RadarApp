@@ -228,7 +228,7 @@ void __fastcall TForm1::Panel1MouseMove(TObject *Sender, TShiftState Shift, int 
 
 // ---------------------------------------------------------------------------
 void __fastcall TForm1::Panel1Click(TObject *Sender) {
-
+	click_counter++;
 	switch (click_counter) {
 	case 1:
 		allowPaintPoint = true;
@@ -243,16 +243,12 @@ void __fastcall TForm1::Panel1Click(TObject *Sender) {
 		ValueListEditor3->Cells[2][4] = Az;
 		pPoints[1][0] = objx;
 		pPoints[1][1] = objy;
-		click_counter=0;
 		break;
 	default:
 		allowPaintPoint = false;
 		click_counter = 0;
-		InvalidateRect(Handle, 0, true);
-
 	}
 	InvalidateRect(Handle, 0, true);
-		click_counter++;
 }
 
 // ---------------------------------------------------------------------------

@@ -2,7 +2,7 @@ object Form1: TForm1
   Left = 0
   Top = 0
   Caption = 'Form1'
-  ClientHeight = 750
+  ClientHeight = 731
   ClientWidth = 1196
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -76,14 +76,13 @@ object Form1: TForm1
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Top = 731
+    Top = 712
     Width = 1196
     Height = 19
     DoubleBuffered = True
     Panels = <>
     ParentDoubleBuffered = False
     SimplePanel = True
-    ExplicitTop = 712
   end
   object TV: TTreeView
     Left = 738

@@ -19,8 +19,7 @@ GLfloat MCGrid[4];
 GLdouble MCPoint[4];
 GLdouble MCTarget[4];
 GLdouble tX, tY, DX, DY, Zoom;
-GLdouble D, Az, objx, objy, objz = 0;
-GLdouble pPoints[2][2] = {0};
+GLdouble D, Az, objx, objy, objz, px1, py1, px2, py2 = 0;
 
 int click_counter;
 bool allowPaintPoint = false;
@@ -114,10 +113,8 @@ void __fastcall TForm1::WMPaint(TWMPaint Msg) {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	PaintGrid();
-
 	if (allowPaintPoint == true)
 		PaintPoint();
-
 	SwapBuffers(dc);
 	// wglMakeCurrent(0, 0);
 	// wglDeleteContext(hrc);
@@ -234,25 +231,23 @@ void __fastcall TForm1::Panel1Click(TObject *Sender) {
 		allowPaintPoint = true;
 		ValueListEditor3->Cells[1][1] = D;
 		ValueListEditor3->Cells[2][2] = Az;
-		pPoints[0][0] = objx;
-		pPoints[0][1] = objy;
+		px1 = objx;
+		py1 = objy;
 		break;
 	case 2:
 		allowPaintPoint = true;
 		ValueListEditor3->Cells[1][3] = D;
 		ValueListEditor3->Cells[2][4] = Az;
-		pPoints[1][0] = objx;
-		pPoints[1][1] = objy;
-		click_counter=0;
+		px2 = objx;
+		py2 = objy;
 		break;
 	default:
 		allowPaintPoint = false;
-		click_counter = 0;
-		InvalidateRect(Handle, 0, true);
-
+		click_counter=0;
 	}
-	InvalidateRect(Handle, 0, true);
-		click_counter++;
+	InvalidateRect(Handle, 0, false);
+	click_counter++;
+
 }
 
 // ---------------------------------------------------------------------------
@@ -260,10 +255,20 @@ void TForm1::PaintPoint() {
 
 	glPointSize(10);
 	glEnable(GL_POINT_SMOOTH);
+
 	glBegin(GL_POINTS);
-	for (int i = 0; i < click_counter; i++)
-		glVertex2f(pPoints[i][0], pPoints[i][1]);
-	glEnd();
+	switch (click_counter) {
+	case 1:
+		glVertex2f(px1, py1);
+		break;
+	case 2:
+	   //	glVertex2f(px1, py1);
+		glVertex2f(px2, py2);
+		break;
+	default:
+		glEnd();
+	}
+
 }
 
 // ---------------------------------------------------------------------------

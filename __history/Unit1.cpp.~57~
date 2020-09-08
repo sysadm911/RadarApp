@@ -248,8 +248,7 @@ void __fastcall TForm1::Panel1Click(TObject *Sender) {
 	default:
 		allowPaintPoint = false;
 		click_counter = 0;
-		InvalidateRect(Handle, 0, true);
-
+			InvalidateRect(Handle, 0, true);
 	}
 	InvalidateRect(Handle, 0, true);
 		click_counter++;
